@@ -4,6 +4,18 @@ import { nanoid } from 'nanoid';
 // TODO: Use connection pool
 // TODO: Change sql connection login for prod
 
+async function sqlCreateConnection() {
+  return await mysql.createConnection({ // Var for global variable, so that connection is defined in the finally statement
+    host: process.env.MYSQL_HOST,
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASSWORD,
+    database: process.env.MYSQL_DATABASE,
+    ssl: {
+      rejectUnauthorized: true
+    }
+  })
+}
+
 export default async function Url(req, res) {
   if(req.method === "GET") {
 
@@ -23,12 +35,7 @@ export default async function Url(req, res) {
       const short = req.query.short
 
       try {
-        var connection = await mysql.createConnection({
-          host: process.env.MYSQL_HOST,
-          user: process.env.MYSQL_USER,
-          password: process.env.MYSQL_PASSWORD,
-          database: "urlshortener"
-        });
+        var connection = await sqlCreateConnection();
 
         const [rows] = await connection.execute(
           'SELECT url FROM Urls WHERE short = ?', 
@@ -60,12 +67,7 @@ export default async function Url(req, res) {
       const uuid = req.query.uuid // User UUID in Firebase
 
       try {
-          var connection = await mysql.createConnection({
-            host: process.env.MYSQL_HOST,
-            user: process.env.MYSQL_USER,
-            password: process.env.MYSQL_PASSWORD,
-            database: 'urlshortener'
-          });
+          var connection = await sqlCreateConnection();
 
           const [rows] = await connection.execute(
             'SELECT * FROM Urls WHERE uuid = ?', 
@@ -74,6 +76,7 @@ export default async function Url(req, res) {
           return res.status(200).json(rows);
 
         } catch (err) { // Return error on internal server error
+            console.log(err)
             return res.status(500).end();
         } finally { // Close connection
           if (connection) {
@@ -106,19 +109,14 @@ export default async function Url(req, res) {
     }
 
     try {
-      var connection = await mysql.createConnection({ // Var for global variable, so that connection is defined in the finally statement
-        host: process.env.MYSQL_HOST,
-        user: process.env.MYSQL_USER,
-        password: process.env.MYSQL_PASSWORD,
-        database: process.env.MYSQL_DATABASE
-      });
+      var connection = await sqlCreateConnection();
 
       const short = nanoid(10); // Generate short ID with length of 10 
 
       // Check if long url is already in db
       const [results] = await connection.execute(
-        'SELECT * FROM Urls WHERE url = ?',
-        [url]
+        'SELECT * FROM Urls WHERE url = ? AND uuid = ?',
+        [url, uuid]
       );
 
       if(results.length !== 0) {
@@ -153,12 +151,7 @@ export default async function Url(req, res) {
     // Delete URL from db
 
     try {
-      var connection = await mysql.createConnection({ // Var for global variable, so that connection is defined in the finally statement
-        host: process.env.MYSQL_HOST,
-        user: process.env.MYSQL_USER,
-        password: process.env.MYSQL_PASSWORD,
-        database: 'urlshortener'
-      });
+      var connection = await sqlCreateConnection();
 
       if(!req.body.short || !req.body.uuid) {
         return res.status(400).json({

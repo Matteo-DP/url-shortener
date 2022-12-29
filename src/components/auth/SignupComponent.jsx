@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import Link from "next/link";
+import Router, { useRouter } from "next/router";
 
 // What is useRef?
 // TODO: styling
@@ -15,6 +16,8 @@ export default function SignupComponent() {
     const [error, setError] = useState();
     const [loading, setLoading] = useState(false);
 
+    const router = useRouter();
+
     async function handleSubmit(e) {
         e.preventDefault(); // What does this do?
 
@@ -26,6 +29,7 @@ export default function SignupComponent() {
             setError('');
             setLoading(true);
             await signup(emailRef.current.value, passwordRef.current.value)
+            router.push("/dashboard");
         } catch {
             setError("Failed to create account");
         }
@@ -62,7 +66,7 @@ export default function SignupComponent() {
 
                         <div className="mb-12">
                             <label htmlFor="password" className="text-lg">Confirm password</label>
-                            <input type="password" id="password"className="w-full mt-2 px-4 py-2 rounded-lg bg-accentpurple" ref={passwordConfirmRef} placeholder="Confirm your password ..." required />
+                            <input type="password" id="passwordConfirm"className="w-full mt-2 px-4 py-2 rounded-lg bg-accentpurple" ref={passwordConfirmRef} placeholder="Confirm your password ..." required />
                         </div>
                     </div>
                     
