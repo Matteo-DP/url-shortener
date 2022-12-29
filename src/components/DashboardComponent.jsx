@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import UrlInput from "./UrlInput";
-import config from "../../config.json";
+import config from "../../config";
 
 export default function DashboardComponent() {
 

@@ -110,7 +110,7 @@ export default async function Url(req, res) {
         host: process.env.MYSQL_HOST,
         user: process.env.MYSQL_USER,
         password: process.env.MYSQL_PASSWORD,
-        database: 'urlshortener'
+        database: process.env.MYSQL_DATABASE
       });
 
       const short = nanoid(10); // Generate short ID with length of 10 
