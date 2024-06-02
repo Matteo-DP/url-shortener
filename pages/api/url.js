@@ -11,10 +11,11 @@ async function sqlCreateConnection() {
     password: process.env.MYSQL_PASSWORD,
     database: process.env.MYSQL_DATABASE,
     ssl: {
-      rejectUnauthorized: true
+      rejectUnauthorized: false
     }
   })
 }
+// rejectUnauthorized: false is used to bypass self-signed certificate error in the connection
 
 export default async function Url(req, res) {
   if(req.method === "GET") {
